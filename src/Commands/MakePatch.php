@@ -14,38 +14,20 @@ class MakePatch extends Command
 
     public function handle(): void
     {
-        $name = $this->argument('name');
-        $patchPath = $this->createPatchFile($name);
-
-        if (!$patchPath) {
-            return;
-        }
-
-        $this->addToPatchesTable($name);
-
-        $this->info('Patch created successfully!');
-    }
-
-    /**
-     * Create a new patch file. Return null if the file already exists.
-     * @param string $name
-     * @return string|null
-     */
-    protected function createPatchFile(string $name): ?string
-    {
         $stubPath = base_path('stubs/patch.stub');
 
         if (!File::exists($stubPath)) {
             $this->error('Patch stub file not found!');
-            return null;
+            return;
         }
 
-        $name = $this->generatePatchName($name);
-        $patchPath = $this->resolvePatchPath($name);
+        $name = $this->argument('name');
+        $patchName = $this->generatePatchName($name);
+        $patchPath = $this->resolvePatchPath($patchName);
 
         if (File::exists($patchPath)) {
             $this->error('Patch already exists!');
-            return null;
+            return;
         }
 
         $stub = File::get($stubPath);
@@ -54,14 +36,14 @@ class MakePatch extends Command
         File::ensureDirectoryExists(database_path('patches'));
         File::put($patchPath, $stub);
 
-        return $patchPath;
+        DB::table('cierra_patches')->insert([
+            'name' => $patchName,
+            'ran' => false,
+        ]);
+
+        $this->info('Patch created successfully!');
     }
 
-    /**
-     * Generate a patch name with timestamp prefix.
-     * @param string $name
-     * @return string
-     */
     protected function generatePatchName(string $name): string
     {
         $timestamp = now()->format('Y_m_d_His');
@@ -70,26 +52,8 @@ class MakePatch extends Command
         return $timestamp . '_' . $name;
     }
 
-    /**
-     * Resolve the patch path with the given name.
-     * @param string $name
-     * @return string
-     */
     protected function resolvePatchPath(string $name): string
     {
         return database_path('patches') . '/' . $name . '.php';
-    }
-
-    /**
-     * Add the patch to the patches table.
-     * @param string $name
-     * @return void
-     */
-    protected function addToPatchesTable(string $name): void
-    {
-        DB::table('cierra_patches')->insert([
-            'name' => $name,
-            'ran' => false,
-        ]);
     }
 }
