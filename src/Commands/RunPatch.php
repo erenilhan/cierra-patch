@@ -10,7 +10,7 @@ class RunPatch extends Command
 {
     protected $signature = 'cierra:patch';
 
-    protected $description = 'Run pending patches';
+    protected $description = 'Run patches from database/patches folder and mark them as ran in the database';
 
     public function handle(): void
     {

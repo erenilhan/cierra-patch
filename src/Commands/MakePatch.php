@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class MakePatch extends Command
 {
-    protected $signature = 'cierra:make:patch {name : The name of the patch}';
+    protected $signature = 'cierra:make-patch {name : The name of the patch}';
     protected $description = 'Generate a new patch file';
 
     public function handle(): void

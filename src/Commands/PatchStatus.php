@@ -8,8 +8,8 @@ use Symfony\Component\Console\Helper\Table;
 
 class PatchStatus extends Command
 {
-    protected $signature = 'cierra:patch:status';
-    protected $description = 'Show patch status';
+    protected $signature = 'cierra:patch-status';
+    protected $description = 'Show the status of all patches';
 
     public function handle(): void
     {
