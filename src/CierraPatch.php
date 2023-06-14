@@ -2,9 +2,9 @@
 
 namespace Erenilhan\CierraPatch;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class CierraPatch
@@ -49,6 +49,9 @@ class CierraPatch
         return Str::studly($name);
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     public function requireFiles(array $files): void
     {
         foreach ($files as $file) {
@@ -86,7 +89,7 @@ class CierraPatch
     //Queries
     //TODO : If there will be more than one query, move them to a separate class and inject it here.
     //BUT IT'S NOT NECESSARY FOR NOW. 15.06.2023 - Eren İlhan - erenilhan1@gmailcom
-    public function getRanInDB()
+    public function getRanInDB(): array
     {
         return DB::table('cierra_patches')
             ->get(['name'])

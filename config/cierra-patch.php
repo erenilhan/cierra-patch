@@ -1,5 +1,5 @@
 <?php
 
 return [
-  'table'=>'cierra_patches',
+    'table' => 'cierra_patches',
 ];

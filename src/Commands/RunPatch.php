@@ -3,6 +3,7 @@
 namespace Erenilhan\CierraPatch\Commands;
 
 use Erenilhan\CierraPatch\CierraPatch;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -22,6 +23,9 @@ class RunPatch extends Command
         $this->cierraPatch = $cierraPatch;
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     public function handle(): void
     {
         $this->info('Running patches...');

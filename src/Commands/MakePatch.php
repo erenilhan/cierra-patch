@@ -4,8 +4,6 @@ namespace Erenilhan\CierraPatch\Commands;
 
 use Erenilhan\CierraPatch\CierraPatch;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -39,12 +37,12 @@ class MakePatch extends Command
         $this->info('Patch created successfully!');
     }
 
-    protected function create($name, $path)
+    protected function create($name, $path): bool|string
     {
         $stubPath = __DIR__ . '/../../stubs/patch.stub';
         if (!File::exists($stubPath)) {
             $this->error('Patch stub file not found!');
-            return;
+            return false;
         }
 
         $path = $path . '/' . date('Y_m_d_His') . '_' . $name . '.php';
@@ -75,7 +73,7 @@ class MakePatch extends Command
         return database_path('patches') . '/' . $name . '.php';
     }
 
-    protected function writePatch($name)
+    protected function writePatch($name): void
     {
         $file = $this->create($name, $this->cierraPatch->getPatchPath());
 
