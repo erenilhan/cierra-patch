@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class MakePatch extends Command
 {
-    protected $signature = 'cierra:make-patch {name : The name of the patch}';
+    protected $signature = 'cierra:make-patch {name? : The name of the patch}}';
 
     protected $description = 'Generate a new patch file';
 
@@ -47,7 +47,7 @@ class MakePatch extends Command
             'ran' => false,
         ]);
 
-        $this->info('Patch created successfully!');
+        $this->info($patchName . ' patch created successfully! You can run it with cierra:patc command. Good luck!');
     }
 
     protected function generatePatchName(string $name): string
