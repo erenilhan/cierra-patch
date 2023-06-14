@@ -2,6 +2,7 @@
 
 namespace Erenilhan\CierraPatch\Commands;
 
+use Erenilhan\CierraPatch\CierraPatch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
@@ -12,34 +13,49 @@ class RunPatch extends Command
 
     protected $description = 'Run patches from database/patches folder and mark them as ran in the database';
 
+    protected CierraPatch $cierraPatch;
+
+    public function __construct(CierraPatch $cierraPatch)
+    {
+        parent::__construct();
+
+        $this->cierraPatch = $cierraPatch;
+    }
+
     public function handle(): void
     {
         $this->info('Running patches...');
 
-        $patches = DB::table('cierra_patches')
-            ->where('ran', false)
-            ->get();
+        $files = $this->cierraPatch->getPatchFiles($this->cierraPatch->getPatchPath());
+        $patches = $this->cierraPatch->pendingPatches($files, $this->cierraPatch->getRanInDB());
 
-        foreach ($patches as $patch) {
-            $this->line('Running patch: ' . $patch->name);
+        $this->cierraPatch->requireFiles($patches);
 
-            require_once(database_path('patches/' . $patch->name . '.php'));
-
-            $className = $this->getClassNameFromFileName($patch->name);
-
-            $class = new $className();
-            $class->run();
-
-            DB::table('cierra_patches')
-                ->where('id', $patch->id)
-                ->update(['ran' => true]);
-        }
+        $this->runPatch($patches);
 
         $this->info('All patches have been executed.');
     }
 
-    private function getClassNameFromFileName($fileName): array|string
+    protected function runPatch(array $patches): void
     {
-        return Str::studly(implode('_', array_slice(explode('_', $fileName), 4)));
+        foreach ($patches as $patch) {
+            $patchName = $this->cierraPatch->getPatchName($patch);
+            $className = $this->getClassNameFromFileName($patchName);
+            $this->cierraPatch->resolve($className)->run();
+
+            DB::table('cierra_patches')->insert([
+                'name' => $patchName,
+                'created_at' => now(),
+            ]);
+
+            $this->line('<info>Ran:</info> ' . $patchName);
+        }
+    }
+
+    protected function getClassNameFromFileName($fileName): array|string
+    {
+        $name = Str::studly(implode('_', array_slice(explode('_', $fileName), 4)));
+
+        return str_replace('.php', '', $name);
     }
 }

@@ -2,8 +2,10 @@
 
 namespace Erenilhan\CierraPatch\Commands;
 
+use Erenilhan\CierraPatch\CierraPatch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
@@ -13,6 +15,15 @@ class MakePatch extends Command
 
     protected $description = 'Generate a new patch file';
 
+    protected CierraPatch $cierraPatch;
+
+    public function __construct(CierraPatch $cierraPatch)
+    {
+        parent::__construct();
+
+        $this->cierraPatch = $cierraPatch;
+    }
+
     public function handle(): void
     {
         $name = $this->argument('name');
@@ -21,38 +32,39 @@ class MakePatch extends Command
             $name = $this->ask('Please enter the name of the patch');
         }
 
-        $stubPath = __DIR__ . '/../../stubs/patch.stub';
+        $file = $this->create($name, $this->cierraPatch->getPatchPath());
 
+        $this->line("<info>Created Patch:</info>" . $file);
+
+        $this->info('Patch created successfully!');
+    }
+
+    protected function create($name, $path)
+    {
+        $stubPath = __DIR__ . '/../../stubs/patch.stub';
         if (!File::exists($stubPath)) {
             $this->error('Patch stub file not found!');
             return;
         }
 
-        $patchName = $this->generatePatchName($name);
-        $patchPath = $this->resolvePatchPath($patchName);
+        $path = $path . '/' . date('Y_m_d_His') . '_' . $name . '.php';
 
-        if (File::exists($patchPath)) {
-            $this->error('Patch already exists!');
-            return;
-        }
+        $patchName = $this->cierraPatch->generatePatchName($name);
+        $patchPath = $this->cierraPatch->resolvePatchPath($patchName);
 
-        $stub = File::get($stubPath);
-        $stub = str_replace('{{className}}', $name, $stub);
+        $stubFile = File::get($stubPath);
+        $stubFile = str_replace('{{className}}', $this->cierraPatch->getClassName($name), $stubFile);
 
         File::ensureDirectoryExists(database_path('patches'));
-        File::put($patchPath, $stub);
+        File::put($patchPath, $stubFile);
 
-        DB::table('cierra_patches')->insert([
-            'name' => $patchName,
-            'ran' => false,
-        ]);
-
-        $this->info($patchName . ' patch created successfully! You can run it with cierra:patc command. Good luck!');
+        return $path;
     }
 
     protected function generatePatchName(string $name): string
     {
         $timestamp = now()->format('Y_m_d_His');
+
         $name = Str::lower($name);
 
         return $timestamp . '_' . $name;
@@ -61,5 +73,12 @@ class MakePatch extends Command
     protected function resolvePatchPath(string $name): string
     {
         return database_path('patches') . '/' . $name . '.php';
+    }
+
+    protected function writePatch($name)
+    {
+        $file = $this->create($name, $this->cierraPatch->getPatchPath());
+
+        $this->line("<info>Created Patch:</info>" . $file);
     }
 }

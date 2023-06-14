@@ -1,6 +1,5 @@
 <?php
 
 return [
-    'name' => 'CierraPatch',
-    'version' => '1.0.0'
+  'table'=>'cierra_patches',
 ];
