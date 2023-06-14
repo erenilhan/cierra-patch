@@ -12,7 +12,6 @@ class CierraPatchServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('cierra-patch')
-            ->hasConfigFile()
             ->hasMigration('create_cierra_patch_table')
             ->hasCommands([
                 Commands\MakePatch::class,

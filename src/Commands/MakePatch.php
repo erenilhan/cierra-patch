@@ -10,18 +10,24 @@ use Illuminate\Support\Str;
 class MakePatch extends Command
 {
     protected $signature = 'cierra:make-patch {name : The name of the patch}';
+
     protected $description = 'Generate a new patch file';
 
     public function handle(): void
     {
-        $stubPath= __DIR__ . '/../../stubs/patch.stub';
+        $name = $this->argument('name');
+
+        if (!$name) {
+            $name = $this->ask('Please enter the name of the patch');
+        }
+
+        $stubPath = __DIR__ . '/../../stubs/patch.stub';
 
         if (!File::exists($stubPath)) {
             $this->error('Patch stub file not found!');
             return;
         }
 
-        $name = $this->argument('name');
         $patchName = $this->generatePatchName($name);
         $patchPath = $this->resolvePatchPath($patchName);
 
