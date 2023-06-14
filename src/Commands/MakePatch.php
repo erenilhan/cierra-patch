@@ -2,67 +2,94 @@
 
 namespace Erenilhan\CierraPatch\Commands;
 
-use App\Models\Patch;
-use Illuminate\Support\Facades\File;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class MakePatch extends Command
 {
     protected $signature = 'cierra:make:patch {name : The name of the patch}';
-
     protected $description = 'Generate a new patch file';
 
     public function handle(): void
     {
-        if(!File::exists(base_path('stubs/patch.stub'))) {
-            $this->error('Patch stub file not found!');
-
-            return;
-        }
-        $this->info('Creating patch... : ' . $this->argument('name'));
-
         $name = $this->argument('name');
-        $stub = File::get(base_path('stubs/patch.stub'));
-        $name = date('Y_m_d_His') . '_' . Str::lower($name);
+        $patchPath = $this->createPatchFile($name);
 
-        $patchPath = database_path('patches') . '/' . $name . '.php';
-        //check if file exists already then throw error
-        if (File::exists($patchPath)) {
-            $this->error('Patch already exists!');
-
+        if (!$patchPath) {
             return;
         }
-        $stub = $this->changeStub($stub, $this->resolve($name));
 
-        File::ensureDirectoryExists(database_path('patches'));
-        File::put($patchPath, $stub);
-
-        Patch::create([
-            'name' => $name,
-            'ran' => false,
-            'batch' => $this->getNextBatchNumber(),
-        ]);
+        $this->addToPatchesTable($name);
 
         $this->info('Patch created successfully!');
     }
 
-//getNextBatchNumber() method
-
-    protected function changeStub($stub, $name): string
+    /**
+     * Create a new patch file. Return null if the file already exists.
+     * @param string $name
+     * @return string|null
+     */
+    protected function createPatchFile(string $name): ?string
     {
-        return str_replace('{{className}}', $name, $stub);
+        $stubPath = base_path('stubs/patch.stub');
+
+        if (!File::exists($stubPath)) {
+            $this->error('Patch stub file not found!');
+            return null;
+        }
+
+        $name = $this->generatePatchName($name);
+        $patchPath = $this->resolvePatchPath($name);
+
+        if (File::exists($patchPath)) {
+            $this->error('Patch already exists!');
+            return null;
+        }
+
+        $stub = File::get($stubPath);
+        $stub = str_replace('{{className}}', $name, $stub);
+
+        File::ensureDirectoryExists(database_path('patches'));
+        File::put($patchPath, $stub);
+
+        return $patchPath;
     }
 
-    public function resolve(string $file): string
+    /**
+     * Generate a patch name with timestamp prefix.
+     * @param string $name
+     * @return string
+     */
+    protected function generatePatchName(string $name): string
     {
-        return Str::studly(implode('_', array_slice(explode('_', $file), 4)));
+        $timestamp = now()->format('Y_m_d_His');
+        $name = Str::lower($name);
+
+        return $timestamp . '_' . $name;
     }
 
-    protected function getNextBatchNumber(): int
+    /**
+     * Resolve the patch path with the given name.
+     * @param string $name
+     * @return string
+     */
+    protected function resolvePatchPath(string $name): string
     {
-        $lastBatch = Patch::orderBy('batch', 'desc')->first();
+        return database_path('patches') . '/' . $name . '.php';
+    }
 
-        return $lastBatch ? $lastBatch->batch + 1 : 1;
+    /**
+     * Add the patch to the patches table.
+     * @param string $name
+     * @return void
+     */
+    protected function addToPatchesTable(string $name): void
+    {
+        DB::table('cierra_patches')->insert([
+            'name' => $name,
+            'ran' => false,
+        ]);
     }
 }
