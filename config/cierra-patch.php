@@ -1,6 +1,6 @@
 <?php
 
-// config for Erenilhan/CierraPatch
 return [
-
+    'name' => 'CierraPatch',
+    'version' => '1.0.0'
 ];

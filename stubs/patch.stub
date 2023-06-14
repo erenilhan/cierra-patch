@@ -1,0 +1,9 @@
+<?php
+
+class {{className}}
+{
+    public function run()
+    {
+    return 'Hello World';
+    }
+}

@@ -10,16 +10,14 @@ class CierraPatchServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
         $package
             ->name('cierra-patch')
             ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_cierra-patch_table')
-            ->hasCommand(CierraPatchCommand::class);
+            ->hasMigration('create_cierra_patch_table')
+            ->hasCommands([
+                Commands\MakePatch::class,
+                Commands\RunPatch::class,
+                Commands\PatchStatus::class,
+            ]);
     }
 }
