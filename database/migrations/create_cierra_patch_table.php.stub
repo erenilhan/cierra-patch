@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('cierra_patch_table', function (Blueprint $table) {
+        Schema::create('cierra_patches', function (Blueprint $table) {
             $table->id();
             $table->string('name',255)->unique();
             $table->boolean('ran')->default(false)->index();
