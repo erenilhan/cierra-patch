@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Erenilhan\CierraPatch\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class CierraPatchCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'cierra-patch';
 
     public $description = 'My command';
 
