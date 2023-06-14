@@ -14,7 +14,7 @@ class MakePatch extends Command
 
     public function handle(): void
     {
-        $stubPath = base_path('stubs/patch.stub');
+        $stubPath= __DIR__ . '/../../stubs/patch.stub';
 
         if (!File::exists($stubPath)) {
             $this->error('Patch stub file not found!');
