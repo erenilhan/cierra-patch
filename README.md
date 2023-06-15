@@ -31,7 +31,7 @@ php artisan cierra:make-patch {patch_name}
 ```
 Run patch
 ```bash
-php artisan cierra:run-patch
+php artisan cierra:patch
 ```
 Status of patch
 ```bash
