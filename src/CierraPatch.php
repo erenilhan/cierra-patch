@@ -89,6 +89,7 @@ class CierraPatch
     //Queries
     //TODO : If there will be more than one query, move them to a separate class and inject it here.
     //BUT IT'S NOT NECESSARY FOR NOW. 15.06.2023 - Eren İlhan - erenilhan1@gmailcom
+    // Also it's not necessary to use DB facade. We can use Eloquent or Query Builder. But it's not necessary for now.
     public function getRanInDB(): array
     {
         return DB::table('cierra_patches')

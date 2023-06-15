@@ -4,7 +4,8 @@ namespace Erenilhan\CierraPatch\Commands;
 
 use Erenilhan\CierraPatch\CierraPatch;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
 class MakePatch extends Command
@@ -15,13 +16,19 @@ class MakePatch extends Command
 
     protected CierraPatch $cierraPatch;
 
-    public function __construct(CierraPatch $cierraPatch)
+    protected Filesystem $filesystem;
+
+    public function __construct(CierraPatch $cierraPatch, Filesystem $filesystem)
     {
         parent::__construct();
 
         $this->cierraPatch = $cierraPatch;
+        $this->filesystem = $filesystem;
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     public function handle(): void
     {
         $name = $this->argument('name');
@@ -37,10 +44,13 @@ class MakePatch extends Command
         $this->info('Patch created successfully!');
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     protected function create($name, $path): bool|string
     {
         $stubPath = __DIR__ . '/../../stubs/patch.stub';
-        if (!File::exists($stubPath)) {
+        if (!$this->filesystem->exists($stubPath)) {
             $this->error('Patch stub file not found!');
             return false;
         }
@@ -50,11 +60,11 @@ class MakePatch extends Command
         $patchName = $this->cierraPatch->generatePatchName($name);
         $patchPath = $this->cierraPatch->resolvePatchPath($patchName);
 
-        $stubFile = File::get($stubPath);
+        $stubFile = $this->filesystem->get($stubPath);
         $stubFile = str_replace('{{className}}', $this->cierraPatch->getClassName($name), $stubFile);
 
-        File::ensureDirectoryExists(database_path('patches'));
-        File::put($patchPath, $stubFile);
+        $this->filesystem->ensureDirectoryExists(database_path('patches'));
+        $this->filesystem->put($patchPath, $stubFile);
 
         return $path;
     }
@@ -73,6 +83,9 @@ class MakePatch extends Command
         return database_path('patches') . '/' . $name . '.php';
     }
 
+    /**
+     * @throws FileNotFoundException
+     */
     protected function writePatch($name): void
     {
         $file = $this->create($name, $this->cierraPatch->getPatchPath());
