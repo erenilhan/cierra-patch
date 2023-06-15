@@ -2,8 +2,8 @@
 
 class {{className}}
 {
-    public function run(): string
+    public function run()
     {
-       return 'Hello World';
+       //
     }
 }

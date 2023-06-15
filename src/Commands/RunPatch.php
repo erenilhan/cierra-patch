@@ -3,6 +3,7 @@
 namespace Erenilhan\CierraPatch\Commands;
 
 use Erenilhan\CierraPatch\CierraPatch;
+use Erenilhan\CierraPatch\Services\PatchDBService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
@@ -15,11 +16,13 @@ class RunPatch extends Command
     protected $description = 'Run patches from database/patches folder and mark them as ran in the database';
 
     protected CierraPatch $cierraPatch;
+    protected PatchDBService $patchDBService;
 
-    public function __construct(CierraPatch $cierraPatch)
+    public function __construct(CierraPatch $cierraPatch, PatchDBService $patchDBService)
     {
         parent::__construct();
 
+        $this->patchDBService = $patchDBService;
         $this->cierraPatch = $cierraPatch;
     }
 
@@ -46,11 +49,12 @@ class RunPatch extends Command
             $patchName = $this->cierraPatch->getPatchName($patch);
             $className = $this->getClassNameFromFileName($patchName);
             $this->cierraPatch->resolve($className)->run();
-
-            DB::table('cierra_patches')->insert([
-                'name' => $patchName,
-                'created_at' => now(),
-            ]);
+//
+//            DB::table('cierra_patches')->insert([
+//                'name' => $patchName,
+//                'created_at' => now(),
+//            ]);
+            $this->patchDBService->storePatch($patchName);
 
             $this->line('<info>Ran:</info> ' . $patchName);
         }

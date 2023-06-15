@@ -2,18 +2,20 @@
 
 namespace Erenilhan\CierraPatch;
 
+use Erenilhan\CierraPatch\Services\PatchDBService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CierraPatch
 {
     protected Filesystem $files;
+    protected PatchDBService $patchDBService;
 
-    public function __construct(Filesystem $files)
+    public function __construct(Filesystem $files, PatchDBService $patchDBService)
     {
         $this->files = $files;
+        $this->patchDBService = $patchDBService;
     }
 
     public function getPatchPath(): string
@@ -83,18 +85,8 @@ class CierraPatch
         return collect($files)
             ->reject(function ($file) use ($ran) {
                 return in_array($this->getPatchName($file), $ran);
-            })->values()->all();
-    }
-
-    //Queries
-    //TODO : If there will be more than one query, move them to a separate class and inject it here.
-    //BUT IT'S NOT NECESSARY FOR NOW. 15.06.2023 - Eren İlhan - erenilhan1@gmailcom
-    // Also it's not necessary to use DB facade. We can use Eloquent or Query Builder. But it's not necessary for now.
-    public function getRanInDB(): array
-    {
-        return DB::table('cierra_patches')
-            ->get(['name'])
-            ->pluck('name')
-            ->toArray();
+            })
+            ->values()
+            ->all();
     }
 }

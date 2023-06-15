@@ -3,6 +3,7 @@
 namespace Erenilhan\CierraPatch\Commands;
 
 use Erenilhan\CierraPatch\CierraPatch;
+use Erenilhan\CierraPatch\Services\PatchDBService;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Helper\Table;
 
@@ -13,16 +14,18 @@ class PatchStatus extends Command
     protected $description = 'Show the status of all patches';
 
     protected CierraPatch $cierraPatch;
+    protected PatchDBService $patchDBService;
 
-    public function __construct(CierraPatch $cierraPatch)
+    public function __construct(CierraPatch $cierraPatch, PatchDBService $patchDBService)
     {
         parent::__construct();
         $this->cierraPatch = $cierraPatch;
+        $this->patchDBService = $patchDBService;
     }
 
     public function handle(): void
     {
-        $dbPatches = $this->cierraPatch->getRanInDB();
+        $dbPatches = $this->patchDBService->getRanPatches();
         $patchFiles = $this->cierraPatch->getPatchFiles($this->cierraPatch->getPatchPath());
 
         $this->output->title('Patches Status');
