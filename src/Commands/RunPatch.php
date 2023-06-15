@@ -5,7 +5,6 @@ namespace Erenilhan\CierraPatch\Commands;
 use Erenilhan\CierraPatch\CierraPatch;
 use Erenilhan\CierraPatch\Services\PatchDBService;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
@@ -34,7 +33,7 @@ class RunPatch extends Command
         $this->info('Running patches...');
 
         $files = $this->cierraPatch->getPatchFiles($this->cierraPatch->getPatchPath());
-        $patches = $this->cierraPatch->pendingPatches($files, $this->cierraPatch->getRanInDB());
+        $patches = $this->cierraPatch->pendingPatches($files, $this->patchDBService->getRanPatches());
 
         $this->cierraPatch->requireFiles($patches);
 

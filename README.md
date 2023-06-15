@@ -1,16 +1,10 @@
 # Cierra - Challenge Task [ Cierra Patch ]
+Cierra Patch is a Laravel package that provides patch management functionality. It allows you to create, manage, and apply patches to your application.
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/erenilhan/cierra-patch.svg?style=flat-square)](https://packagist.org/packages/erenilhan/cierra-patch)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/erenilhan/cierra-patch/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/erenilhan/cierra-patch/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/erenilhan/cierra-patch/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/erenilhan/cierra-patch/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/erenilhan/cierra-patch.svg?style=flat-square)](https://packagist.org/packages/erenilhan/cierra-patch)
-
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
-
+Installation
 ## Installation
 
-You can install the package via composer:
+You can install the package via Composer:
 
 ```bash
 composer require "erenilhan/cierra-patch @dev"
@@ -25,17 +19,23 @@ php artisan migrate
 
 
 ## Usage
- Create a patch
+### Create a patch
+
 ```bash 
 php artisan cierra:make-patch {patch_name} 
 ```
-Run patch
-```bash
-php artisan cierra:patch
-```
-Status of patch
+If you don't provide a **{patch_name}**, the command will prompt you to enter the name of the patch.
+
+### Check Patch Status
+To check the status of a patch, use the following command:
 ```bash
 php artisan cierra:patch-status
+```
+### Apply Patches
+To apply patches to your application, run the following command:
+
+```bash 
+php artisan cierra:patch
 ```
 
 
@@ -53,14 +53,10 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
 
 ## Credits
 
-- [Eren İlhan](https://github.com/erenilhan)
-- [All Contributors](../../contributors)
+- [Eren İlhan](https://github.com/erenilhan) / [erenilhan.com](https://erenilhan.com)
 
 ## License
 
